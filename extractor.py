@@ -16,7 +16,7 @@ class extractor():
     In this class we use simpleITK to clip mainly. Pay attention to the axis.
     
     """
-    def __init__(self, image, label, mask=None, image_patch_size=[16, 48, 48], label_patch_size=[16, 48, 48], slide=None, phase="train"):
+    def __init__(self, image, label, mask=None, image_patch_size=[16, 48, 48], label_patch_size=[16, 48, 48], overlap=None, phase="train"):
         """
         image : original CT image
         label : original label image
@@ -50,13 +50,14 @@ class extractor():
         self.label_patch_size = np.array(label_patch_size)
 
         """ Check slide size is correct."""
-        if slide is None:
+        if overlap is None:
             self.slide = self.label_patch_size
+            self.overlap = 1
         else:
-            self.slide = np.array(slide)
-            if ((self.label_patch_size % self.slide) != 0).any():
-                print("[ERROR] Invalid slide size : {}.".format(self.slide))
-                sys.exit()
+            self.slide = self.label_patch_size / overlap
+            self.overlap = overlap
+
+
 
     def execute(self):
         """
@@ -184,6 +185,7 @@ class extractor():
                 pbar.update(1)
 
 
+        predict_array = predict_array 
         predict = getImageWithMeta(predict_array, self.label)
         predict = cropping(predict, self.meta["lower_padding_size"], self.meta["upper_padding_size"])
         predict.SetOrigin(self.label.GetOrigin())

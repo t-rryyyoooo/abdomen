@@ -20,7 +20,7 @@ def ParseArgs():
     parser.add_argument("--mask_path", help="$HOME/Desktop/data/kits19/case_00000/mask.mha")
     parser.add_argument("--image_patch_size", help="16-48-48", default="16-48-48")
     parser.add_argument("--label_patch_size", help="16-48-48", default="16-48-48")
-    parser.add_argument("--slide", help="1-1-1")
+    parser.add_argument("--overlap", help="1", type=int)
     parser.add_argument("-g", "--gpuid", help="0 1", nargs="*", default=0, type=int)
 
     args = parser.parse_args()
@@ -58,24 +58,14 @@ def main(args):
 
     label_patch_size = [int(s) for s in matchobj.groups()]
 
-    """ Get the slide size from string."""
-    if args.slide is not None:
-        matchobj = re.match("([0-9]+)-([0-9]+)-([0-9]+)", args.slide)
-        if matchobj is None:
-            print("[ERROR] Invalid patch size : {}.".fotmat(args.slide))
-            sys.exit()
-
-        slide = [int(s) for s in matchobj.groups()]
-    else:
-        slide = None
-
+    
     extractor = extor(
             image = image, 
             label = label, 
             mask = mask,
             image_patch_size = image_patch_size, 
             label_patch_size = label_patch_size, 
-            slide = slide, 
+            overlap = args.overlap, 
             phase = "segmentation"
             )
 
