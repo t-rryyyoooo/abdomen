@@ -1,0 +1,13 @@
+{
+    "data_directory" : "$HOME/Desktop/data/kits19",
+    "save_directory" : "$HOME/Desktop/data/patch/16-48-48/cancer", 
+    "image_patch_size" : "16-48-48",
+    "label_patch_size" : "16-48-48",
+    "slide" : "16-48-48",
+    "image_name" : "imaging.nii.gz",
+    "label_name" : "segmentation.nii.gz",
+    "mask_name" : "mask.mha",
+    "num_array" : ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29"],
+    "log_file" : "fail/extractImage.txt"
+}
+

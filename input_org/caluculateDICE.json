@@ -1,0 +1,15 @@
+{
+    "true_directory" : "$HOME/Desktop/data/kits19", 
+    "predict_directory" : "$HOME/Desktop/data/patch/16-48-48/segmentation", 
+    "patientID_list" : "001 017 020 022 043 082 094 115 120 137 173 174 205 019 023 054 093 096 123 127 136 141 153 188 191 201",
+    "classes" : 3, 
+    "class_label" : "background kidney cancer",
+    "true_name" : "segmentation.nii.gz",
+    "predict_name" : "label.mha", 
+    "text" : "$HOME/Desktop/data/result/DICE.txt"
+}
+
+
+
+
+
