@@ -3,7 +3,7 @@ import SimpleITK as sitk
 import os
 import sys
 import argparse
-from functions import DICE
+from functions import DICE, createParentPath
 from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
@@ -77,6 +77,7 @@ def main(args):
     df_means = pd.DataFrame(means)
     df = pd.concat([df, df_means], sort=False)
 
+    createParentPath(args.save_path)
     df.to_csv(args.save_path)
 
 if __name__ == '__main__':
