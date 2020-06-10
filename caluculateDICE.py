@@ -6,6 +6,7 @@ import argparse
 from functions import DICE
 from pathlib import Path
 from tqdm import tqdm
+import pandas as pd
 
 args = None
 
@@ -13,6 +14,7 @@ def parseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument('true_directory', help = '~/Desktop/data/KIDNEY')
     parser.add_argument('predict_directory',help = '~/Desktop/data/hist/segmentation')
+    parser.add_argument('save_path',help = '~/Desktop/results/DICE.csv')
     parser.add_argument('patientID_list',help = '000 001 002', nargs="*")
     parser.add_argument("--classes", help="3", default=3, type=int) 
     parser.add_argument("--class_label", help="bg kidney cancer", nargs="*") 
@@ -31,6 +33,8 @@ def main(args):
     else:
         args.class_label = ["Class {}".format(c) for c in range(args.classes)]
 
+    df = pd.DataFrame()
+    ID = []
     whole_DICE = []
     DICE_per_class = [[] for _ in range(args.classes)]
     total = len(args.patientID_list) * args.classes
@@ -48,25 +52,32 @@ def main(args):
             dice = DICE(true_array, predict_array)
             whole_DICE.append(dice)
 
-            print('case_00' + x)
-            print("Whole DICE : {}".format(dice))
+            ID.append("case_" + x)
+
             for c in range(args.classes):
                 true_c_array = (true_array == c).astype(int)
                 predict_c_array  = (predict_array == c).astype(int)
                 
                 dice = DICE(true_c_array, predict_c_array)
                 DICE_per_class[c].append(dice)
-                print("{} DICE : {}".format(args.class_label[c], dice))
                 pbar.update(1)
-            print()
 
+    df["patient ID"] = ID
+    df["Whole DICE"] = whole_DICE
+    for c in range(args.classes):
+        df[args.class_label[c]] = DICE_per_class[c]
 
     avg_dice = np.mean(whole_DICE)
-    print("Average whole DICE : {}".format(avg_dice))
+    means = {"patient ID" : ["means"]}
+    means["Whole DICE"] = [avg_dice]
     for c, dice_c in zip(range(args.classes), DICE_per_class):
         avg_dice = np.mean(dice_c)
-        print("Average {} DICE : {}".format(args.class_label[c], avg_dice))
-    print()
+        means[args.class_label[c]] = [avg_dice]
+
+    df_means = pd.DataFrame(means)
+    df = pd.concat([df, df_means], sort=False)
+
+    df.to_csv(args.save_path)
 
 if __name__ == '__main__':
     args = parseArgs()
