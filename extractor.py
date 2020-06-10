@@ -54,7 +54,7 @@ class extractor():
             self.slide = self.label_patch_size
             self.overlap = 1
         else:
-            self.slide = self.label_patch_size / overlap
+            self.slide = self.label_patch_size // overlap
             self.overlap = overlap
 
 
@@ -185,7 +185,6 @@ class extractor():
                 pbar.update(1)
 
 
-        predict_array = predict_array 
         predict = getImageWithMeta(predict_array, self.label)
         predict = cropping(predict, self.meta["lower_padding_size"], self.meta["upper_padding_size"])
         predict.SetOrigin(self.label.GetOrigin())

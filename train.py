@@ -1,5 +1,5 @@
-from UNet.system import UNetSystem
-from UNet.modelCheckpoint import BestAndLatestModelCheckpoint
+from model.UNet_with_pad.system import UNetSystem
+from model.UNet_with_pad.modelCheckpoint import BestAndLatestModelCheckpoint
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import CometLogger
 import json

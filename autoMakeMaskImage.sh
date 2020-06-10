@@ -3,7 +3,7 @@
 #Input
 # Input 
 readonly INPUT_DIRECTORY="input"
-echo -n "Is json file name makeImage.json?[yes/no]:"
+echo -n "Is json file name makeMaskImage.json?[yes/no]:"
 read which
 while [ ! $which = "yes" -a ! $which = "no" ]
 do
@@ -13,7 +13,7 @@ done
 
 # Specify json file path.
 if [ $which = "yes" ];then
- JSON_NAME="makeImage.json"
+ JSON_NAME="makeMaskImage.json"
 else
  echo -n "JSON_FILE_NAME="
  read JSON_NAME
@@ -35,7 +35,7 @@ date >> $LOG_FILE
 for number in ${NUM_ARRAY[@]}
 do
 
- data="${DATA_DIRECTORY}/case_00${number}"
+ data="${DATA_DIRECTORY}/case_${number}"
  label="${data}/${LABEL_NAME}"
  save="${data}/${MASK_NAME}"
 
@@ -47,11 +47,11 @@ do
 
  # Judge if it works.
  if [ $? -eq 0 ]; then
-  echo "case_00${number} done."
+  echo "case_${number} done."
 
  else
-  echo "case_00${number}" >> $LOG_FILE
-  echo "case_00${number} failed"
+  echo "case_${number}" >> $LOG_FILE
+  echo "case_${number} failed"
 
  fi
 

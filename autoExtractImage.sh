@@ -24,7 +24,7 @@ readonly DATA_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".data_directory"
 readonly SAVE_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".save_directory"))
 readonly IMAGE_PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".image_patch_size")
 readonly LABEL_PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".label_patch_size")
-readonly SLIDE=$(cat ${JSON_FILE} | jq -r ".slide")
+readonly OVERLAP=$(cat ${JSON_FILE} | jq -r ".overlap")
 readonly NUM_ARRAY=$(cat ${JSON_FILE} | jq -r ".num_array[]")
 readonly LOG_FILE=$(eval echo $(cat ${JSON_FILE} | jq -r ".log_file"))
 readonly IMAGE_NAME=$(cat ${JSON_FILE} | jq -r ".image_name")
@@ -41,11 +41,11 @@ date >> $LOG_FILE
 
 for number in ${NUM_ARRAY[@]}
 do
- data="${DATA_DIRECTORY}/case_00${number}"
+ data="${DATA_DIRECTORY}/case_${number}"
  image="${data}/${IMAGE_NAME}"
  label="${data}/${LABEL_NAME}"
  mask="${data}/${MASK_NAME}"
- save="${SAVE_DIRECTORY}/case_00${number}"
+ save="${SAVE_DIRECTORY}/case_${number}"
 
  echo "Image:${image}"
  echo "Label:${label}"
@@ -54,15 +54,15 @@ do
  echo "IMAGE_PATCH_SIZE:${IMAGE_PATCH_SIZE}"
  echo "LABEL_PATCH_SIZE:${LABEL_PATCH_SIZE}"
 
- python3 extractImage.py ${image} ${label} ${save} --mask_path ${mask} --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --slide ${SLIDE}
+ python3 extractImage.py ${image} ${label} ${save} --mask_path ${mask} --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap ${OVERLAP}
 
  # Judge if it works.
  if [ $? -eq 0 ]; then
-  echo "case_00${number} done."
+  echo "case_${number} done."
  
  else
-  echo "case_00${number}" >> $LOG_FILE
-  echo "case_00${number} failed"
+  echo "case_${number}" >> $LOG_FILE
+  echo "case_${number} failed"
  
  fi
 
