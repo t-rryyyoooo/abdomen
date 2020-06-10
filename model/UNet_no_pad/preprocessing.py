@@ -1,6 +1,7 @@
 import SimpleITK as sitk
 import numpy as np
 from .utils import *
+from random import randint
 
 class Compose(object):
     def __init__(self, transforms):
@@ -29,8 +30,8 @@ class AffineTransform(object):
 
     def __call__(self, image, label):
         """
-        image : 256 * 256 * x
-        label : 256 * 256 * x
+        image : 44 * 44 * 16
+        label : 44 * 44 * 16
         """
         parameters = makeAffineParameters(image, self.translate_range, self.rotate_range, self.shear_range, self.scale_range)
         affine = makeAffineMatrix(*parameters)
@@ -43,24 +44,37 @@ class AffineTransform(object):
         return transformed_image, transformed_label
 
 class GetArrayFromImage(object):
+    def __init__(self, classes):
+        self.classes = classes
+        
     def __call__(self, image, label):
-        imageArray = sitk.GetArrayFromImage(image)
-        labelArray = sitk.GetArrayFromImage(label).astype(int)
+        image_array = sitk.GetArrayFromImage(image)
+        label_array = sitk.GetArrayFromImage(label).astype(int)
 
         if image.GetDimension() != 4:
-            imageArray = imageArray[..., np.newaxis]
-            
+            image_array = image_array[..., np.newaxis]
 
-        imageArray = imageArray.transpose((3, 2, 0, 1))
-        labelArray = labelArray.transpose((2, 0, 1))
+        label_array = np.identity(self.classes)[label_array]
 
-        return imageArray, labelArray
+        image_array = image_array.transpose((3, 2, 0, 1))
+        label_array = label_array.transpose((3, 2, 0, 1))
 
+        return image_array, label_array
 
+class RandomFlip(object):
+    def __call__(self, image, label):
+        dimension = image.GetDimension()
+        flip_filter = sitk.FlipImageFilter()
 
+        flip_axes = [bool(randint(0, 1)) for _ in range(dimension)]
+        flip_filter.SetFlipAxes(flip_axes)
 
+        flipped_image = flip_filter.Execute(image)
+        flipped_label = flip_filter.Execute(label)
 
+        flipped_image = setMeta(flipped_image, image)
+        flipped_label = setMeta(flipped_label, label)
 
-
+        return flipped_image, flipped_label
 
 

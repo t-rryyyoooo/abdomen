@@ -23,32 +23,28 @@ readonly JSON_FILE="${INPUT_DIRECTORY}/${JSON_NAME}"
 # From json file, read required variable.
 readonly TRUE_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".true_directory"))
 readonly PREDICT_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".predict_directory"))
+readonly SAVE_PATH=$(eval echo $(cat ${JSON_FILE} | jq -r ".save_path"))
 readonly PATIENTID_LIST=$(cat ${JSON_FILE} | jq -r ".patientID_list")
 readonly CLASSES=$(cat ${JSON_FILE} | jq -r ".classes")
 readonly CLASS_LABEL=$(cat ${JSON_FILE} | jq -r ".class_label")
 readonly TRUE_NAME=$(cat ${JSON_FILE} | jq -r ".true_name")
 readonly PREDICT_NAME=$(cat ${JSON_FILE} | jq -r ".predict_name")
-readonly TEXT=$(cat ${JSON_FILE} | jq -r ".text")
 
 echo "TRUE_DIRECTORY:${TRUE_DIRECTORY}"
 echo "PREDICT_DIRECTORY:${PREDICT_DIRECTORY}"
+echo "SAVE_PATH:${SAVE_PATH}"
 echo "PATIENTID_LIST:${PATIENTID_LIST}"
 echo "CLASSES:${CLASSES}"
 echo "CLASS_LABEL:${CLASS_LABEL}"
 echo "TRUE_NAME:${TRUE_NAME}"
 echo "PREDICT_NAME:${PREDICT_NAME}"
-echo "TEXT:${TEXT}"
 
-# Make directory to save TEXT.
-mkdir -p `dirname ${TEXT}`
 
-python3 caluculateDICE.py ${TRUE_DIRECTORY} ${PREDICT_DIRECTORY} ${PATIENTID_LIST} --classes ${CLASSES} --class_label ${CLASS_LABEL} --true_name ${TRUE_NAME} --predict_name ${PREDICT_NAME} > ${TEXT}
+python3 caluculateDICE.py ${TRUE_DIRECTORY} ${PREDICT_DIRECTORY} ${SAVE_PATH} ${PATIENTID_LIST} --classes ${CLASSES} --class_label ${CLASS_LABEL} --true_name ${TRUE_NAME} --predict_name ${PREDICT_NAME} 
 
 # Judge if it works.
 if [ $? -eq 0 ]; then
  echo "Done."
- echo ${RESULT} >> ${TEXT}
- cat ${TEXT}
 
 else
  echo "Fail"
