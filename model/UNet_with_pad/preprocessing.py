@@ -20,10 +20,6 @@ class ReadImage(object):
 
         return image, label
 
-<<<<<<< HEAD
-
-=======
->>>>>>> bdae59bacf85fe7df4a74f2702d00fb4cf0c2c83
 class AffineTransform(object):
     def __init__(self, translate_range, rotate_range, shear_range, scale_range, bspline=None):
         self.translate_range = translate_range
@@ -61,7 +57,7 @@ class GetArrayFromImage(object):
         label_array = np.identity(self.classes)[label_array]
 
         image_array = image_array.transpose((3, 2, 0, 1))
-        label_array = label_array.transpose((3, 2, 0, 1))
+        label_array = label_array.transpose((2, 0, 1, 3))
 
         return image_array, label_array
 

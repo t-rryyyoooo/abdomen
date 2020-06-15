@@ -11,6 +11,7 @@ class WeightedCategoricalCrossEntropy(nn.Module):
     def forward(self, pred, true):
         """ 
         onehot
+
         """
         
         eps = 10**(-9)
