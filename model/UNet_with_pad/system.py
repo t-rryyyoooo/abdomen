@@ -24,7 +24,7 @@ class UNetSystem(pl.LightningModule):
         self.checkpoint = checkpoint
         self.num_workers = num_workers
         self.DICE = DICE(self.num_class, self.device)
-        self.loss = WeightedCategoricalCrossEntropy("log", device=self.device)
+        self.loss = WeightedCategoricalCrossEntropy(device=self.device)
 
     def forward(self, x):
         x = self.model(x)
