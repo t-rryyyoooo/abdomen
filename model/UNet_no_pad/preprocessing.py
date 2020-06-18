@@ -30,16 +30,21 @@ class AffineTransform(object):
 
     def __call__(self, image, label):
         """
-        image : 44 * 44 * 16
-        label : 44 * 44 * 16
+        image : 116 * 132 * 132
+        label : 28 * 44 * 44
         """
-        parameters = makeAffineParameters(image, self.translate_range, self.rotate_range, self.shear_range, self.scale_range)
-        affine = makeAffineMatrix(*parameters)
-
+        image_parameters = makeAffineParameters(image, self.translate_range, self.rotate_range, self.shear_range, self.scale_range)
+        label_parameters = image_parameters[:]
+        """ Because image and label are the different size, we must change center paramter per image. """
+        label_parameters[-1] = (np.array(label.GetSize()) * np.array(label.GetSpacing()) / 2)[::-1]
+        
+        
+        image_affine = makeAffineMatrix(*image_parameters)
+        label_affine = makeAffineMatrix(*label_parameters)
         minval = getMinimumValue(image)
-        transformed_image = transforming(image, self.bspline, affine, sitk.sitkLinear, minval)
+        transformed_image = transforming(image, self.bspline, image_affine, sitk.sitkLinear, minval)
 
-        transformed_label = transforming(label, self.bspline, affine, sitk.sitkNearestNeighbor, 0)
+        transformed_label = transforming(label, self.bspline, label_affine, sitk.sitkNearestNeighbor, 0)
 
         return transformed_image, transformed_label
 
