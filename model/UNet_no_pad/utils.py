@@ -22,7 +22,7 @@ def setMeta(to_image, ref_image, direction=None, origin=None, spacing=None):
 def separateData(dataset_path, criteria, phase): 
     dataset = []
     for number in criteria[phase]:
-        data_path = Path(dataset_path) / ("case_00" + number) 
+        data_path = Path(dataset_path) / ("case_" + number) 
 
         image_list = data_path.glob("image*")
         label_list = data_path.glob("label*")
@@ -81,7 +81,7 @@ class DICE():
         self.num_class = num_class
         self.device = device
         """
-        Required : not onehot
+        Required : onehot
         """
 
     def compute(self, true, pred):

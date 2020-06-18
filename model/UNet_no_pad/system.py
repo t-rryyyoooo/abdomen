@@ -24,7 +24,7 @@ class UNetSystem(pl.LightningModule):
         self.checkpoint = checkpoint
         self.num_workers = num_workers
         self.DICE = DICE(self.num_class, self.device)
-        self.loss = WeightedCategoricalCrossEntropy("log", device=self.device)
+        self.loss = WeightedCategoricalCrossEntropy(device=self.device)
 
     def forward(self, x):
         x = self.model(x)
@@ -34,75 +34,69 @@ class UNetSystem(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         image, label = batch
         image = image.to(self.device, dtype=torch.float)
-        label = label.to(self.device, dtype=torch.long)
+        label = label.to(self.device, dtype=torch.float)
 
         pred = self.forward(image).to(self.device)
-        """ Channel last for loss. """
-        pred_last = pred.permute(0, 2, 3, 4, 1).to(self.device)
+
+        """ Channel last for loss and onehot for DICE. """
+        pred_channel_last = pred.permute(0, 2, 3, 4, 1).to(self.device)
 
         pred_onehot = torch.eye(self.num_class)[pred.argmax(dim=1)].to(self.device)
-        label_onehot = torch.eye(self.num_class)[label].to(self.device)
 
-        bg_dice, kidney_dice, cancer_dice = self.DICE.computePerClass(label_onehot, pred_onehot)
 
-        #loss = nn.functional.cross_entropy(pred, label, reduction="none")
-        loss = self.loss(pred_last, label_onehot)
+        dice = self.DICE.compute(label, pred_onehot)
+
+        loss = self.loss(pred_channel_last, label)
 
 
         tensorboard_logs = {
                 "train_loss" : loss, 
-                "kidney_dice" : kidney_dice, 
-                "cancer_dice" : cancer_dice
+                "dice" : dice
                 }
         progress_bar = {
-                "train_loss" : loss
+                "dice" : dice
                 }
         
-        return {"loss" : loss, "log" : tensorboard_logs}#, "progress_bar" : progress_bar}
+        return {"loss" : loss, "log" : tensorboard_logs, "progress_bar" : progress_bar}
 
     def validation_step(self, batch, batch_idx):
         image, label = batch
         image = image.to(self.device, dtype=torch.float)
-        label = label.to(self.device, dtype=torch.long)
+        label = label.to(self.device, dtype=torch.float)
+
         pred = self.forward(image)
-        pred_last = pred.permute(0, 2, 3, 4, 1).to(self.device)
+        pred_channel_last = pred.permute(0, 2, 3, 4, 1).to(self.device)
 
-        pred_onehot = torch.eye(self.num_class)[pred.argmax(dim=1)]
-        label_onehot = torch.eye(self.num_class)[label]
+        pred_onehot = torch.eye(self.num_class)[pred.argmax(dim=1)].to(self.device)
 
-        bg_dice, kidney_dice, cancer_dice = self.DICE.computePerClass(label_onehot, pred_onehot)
+        dice = self.DICE.compute(label, pred_onehot)
 
-        loss = self.loss(pred_last, label_onehot)
-        #loss = self.loss(pred_onehot, label_onehot)
-        #loss = nn.functional.cross_entropy(pred, label)
+        loss = self.loss(pred_channel_last, label)
 
         tensorboard_logs = {
                 "val_loss" : loss, 
-                "val_kidney_dice" : kidney_dice, 
-                "val_cancer_dice" : cancer_dice
+                "val_dice" : dice, 
                 }
         progress_bar= {
                 "val_loss" : loss, 
-                "val_cancer_dice" : cancer_dice
+                "val_dice" : dice
                 }
  
         return {"val_loss" : loss, "log" : tensorboard_logs}#, "progress_bar" : progress_bar}
 
     def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
-        avg_kidney_dice = torch.stack([x["log"]["val_kidney_dice"] for x in outputs]).mean()
-        avg_cancer_dice = torch.stack([x["log"]["val_cancer_dice"] for x in outputs]).mean()
+        avg_dice = torch.stack([x["log"]["val_dice"] for x in outputs]).mean()
 
         self.checkpoint(avg_loss.item(), self.model)
 
         tensorboard_logs = {
                 "val_loss" : avg_loss,
-                "val_kidney_dice" : avg_kidney_dice, 
-                "val_cancer_dice" : avg_cancer_dice
+                "val_dice" : avg_dice, 
                 }
         progress_bar = {
                 "val_loss" : avg_loss,
-                "val_cancer_dice" : avg_cancer_dice
+                "val_dice" : avg_dice
                 }
 
 
@@ -115,17 +109,17 @@ class UNetSystem(pl.LightningModule):
 
     @pl.data_loader
     def train_dataloader(self):
-        translate = 0
-        rotate = 360
+        translate = 0.0
+        rotate = 0
         shear = 0.0
-        scale = 0.05
+        scale = 0.0
         batch_size = self.batch_size
 
         train_dataset = UNetDataset(
                 dataset_path = self.dataset_path, 
                 phase = "train", 
                 criteria = self.criteria,
-                transform = UNetTransform(translate, rotate, shear, scale)
+                transform = UNetTransform(self.num_class, translate, rotate, shear, scale)
                 )
 
         train_loader = DataLoader(
@@ -143,7 +137,7 @@ class UNetSystem(pl.LightningModule):
                 dataset_path = self.dataset_path, 
                 phase = "val", 
                 criteria = self.criteria,
-                transform = UNetTransform()
+                transform = UNetTransform(self.num_class)
                 )
 
         val_loader = DataLoader(

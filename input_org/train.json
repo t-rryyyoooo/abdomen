@@ -1,22 +1,25 @@
 {
-	"api_key" : "Your comet.ml api key",
-	"project_name" : "kidney",
-	"experiment_name" : "aligned",
-	"log" : "/home/vmlab/Desktop/data/log",
-	"dataset_path" : "/home/vmlab/Desktop/data/patch/label3d/image", 
+	"api_key" : "Your comet.ml API key",
+	"project_name" : "abdomen",
+	"experiment_name" : "with_pad",
+	"log" : "/home/vmlab/Desktop/data/log/abdomen/with_pad/28-44-44/mask",
+        "model_module_name" : "UNet_with_pad",
+        "system_name" : "UNetSystem",
+        "checkpoint_name" : "BestAndLatestModelCheckpoint",
+	"dataset_path" : "/home/vmlab/Desktop/data/patch/Abdomen/28-44-44/mask", 
 	"criteria" : {
-		"train" : ["000", "003", "004", "006", "007", "009", "010", "014", "015", "018", "027", "031", "032", "033", "037", "039", "040", "049", "050", "052", "062", "063", "064", "065", "071", "072", "075", "076", "077", "081", "083", "085", "091", "097", "100", "101", "103", "106", "121", "124", "125", "128", "129", "132", "138", "140", "146", "150", "152", "155", "156", "158", "164", "167", "175", "182", "190", "193", "198", "203"],
+		"train" : ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"],
 		
-		"val" : ["001", "017", "020", "022", "043", "082", "094", "115", "120", "137", "173", "174", "205"]
+		"val" : ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29"]
         },
-	"in_channel" : 5, 
-	"num_class" : 3,
+	"in_channel" : 1, 
+	"num_class" : 14,
 	"learning_rate" : 0.001,
-	"batch_size" : 2, 
+	"batch_size" : 32, 
 	"num_workers" : 6,
-	"epoch" : 1000,
+	"epoch" : 500,
 	"gpu_ids" : [0], 
-	"model_savepath" : "/home/vmlab/Desktop/data/modelweight/test_loss"
+	"model_savepath" : "/home/vmlab/Desktop/data/modelweight/Abdomen/28-44-44/mask"
 }
 
 	

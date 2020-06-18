@@ -1,5 +1,4 @@
-from model.UNet_with_pad.system import UNetSystem
-from model.UNet_with_pad.modelCheckpoint import BestAndLatestModelCheckpoint
+from importlib import import_module
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import CometLogger
 import json
@@ -16,11 +15,12 @@ def parseArgs():
     return args
 
 def main(args):
-    torch.manual_seed(0)
-
     with open(args.input_json, "r") as f:
         input_json = json.load(f)
 
+    model_module_name = input_json["model_module_name"]
+    system_name = input_json["system_name"]
+    checkpoint_name = input_json["checkpoint_name"]
     dataset_path = input_json["dataset_path"]
     criteria = input_json["criteria"]
     in_channel = input_json["in_channel"]
@@ -45,6 +45,12 @@ def main(args):
  
     torch.manual_seed(0)
 
+    system_path = "." + model_module_name + ".system"
+    checkpoint_path = "." + model_module_name + ".modelCheckpoint"
+    system_module = import_module(system_path, "model")
+    checkpoint_module = import_module(checkpoint_path, "model")
+    UNetSystem = getattr(system_module, system_name)
+    checkpoint = getattr(checkpoint_module, checkpoint_name)
     system = UNetSystem(
             dataset_path = dataset_path,
             criteria = criteria,
@@ -53,7 +59,7 @@ def main(args):
             learning_rate = learning_rate,
             batch_size = batch_size,
             num_workers = num_workers, 
-            checkpoint = BestAndLatestModelCheckpoint(model_savepath), 
+            checkpoint = checkpoint(model_savepath), 
             )
 
     trainer = pl.Trainer(
