@@ -25,7 +25,7 @@ readonly WEIGHT=$(eval echo $(cat ${JSON_FILE} | jq -r ".weight"))
 readonly SAVE_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".save_directory"))
 readonly IMAGE_PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".image_patch_size")
 readonly LABEL_PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".label_patch_size")
-readonly SLIDE=$(cat ${JSON_FILE} | jq -r ".slide")
+readonly OVERLAP=$(cat ${JSON_FILE} | jq -r ".overlap")
 readonly IMAGE_NAME=$(cat ${JSON_FILE} | jq -r ".image_name")
 readonly MASK_NAME=$(cat ${JSON_FILE} | jq -r ".mask_name")
 readonly SAVE_NAME=$(cat ${JSON_FILE} | jq -r ".save_name")
@@ -35,9 +35,9 @@ readonly GPU_ID=$(cat ${JSON_FILE} | jq -r ".gpu_id")
 echo $NUM_ARRAY
 for number in ${NUM_ARRAY[@]}
 do
- save="${SAVE_DIRECTORY}/case_00${number}/${SAVE_NAME}"
- image="${DATA_DIRECTORY}/case_00${number}/${IMAGE_NAME}"
- mask="${DATA_DIRECTORY}/case_00${number}/${MASK_NAME}"
+ save="${SAVE_DIRECTORY}/case_${number}/${SAVE_NAME}"
+ image="${DATA_DIRECTORY}/case_${number}/${IMAGE_NAME}"
+ mask="${DATA_DIRECTORY}/case_${number}/${MASK_NAME}"
 
  echo "Image:${image}"
  echo "WEIGHT:${WEIGHT}"
@@ -45,9 +45,10 @@ do
  echo "Save:${save}"
  echo "IMAGE_PATCH_SIZE:${IMAGE_PATCH_SIZE}"
  echo "LABEL_PATCH_SIZE:${LABEL_PATCH_SIZE}"
+ echo "OVERLAP:${OVERLAP}"
  echo "GPU_ID:${GPU_ID}"
 
- #python3 segmentation.py $image$WEIGHT $save --mask_path $mask --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} -g $id 
+ python3 segmentation.py $image $WEIGHT $save --mask_path $mask --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_ID}
 
 
 done

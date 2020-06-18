@@ -7,7 +7,6 @@ from extractor import extractor as extor
 from tqdm import tqdm
 import torch
 import cloudpickle
-from UNet.model import UNetModel
 import re
 
 
@@ -18,9 +17,9 @@ def ParseArgs():
     parser.add_argument("modelweightfile", help="Trained model weights file (*.hdf5).")
     parser.add_argument("save_path", help="Segmented label file.(.mha)")
     parser.add_argument("--mask_path", help="$HOME/Desktop/data/kits19/case_00000/mask.mha")
-    parser.add_argument("--image_patch_size", help="16-48-48", default="16-48-48")
-    parser.add_argument("--label_patch_size", help="16-48-48", default="16-48-48")
-    parser.add_argument("--overlap", help="1", type=int)
+    parser.add_argument("--image_patch_size", help="16-48-48", default="28-44-44")
+    parser.add_argument("--label_patch_size", help="16-48-48", default="28-44-44")
+    parser.add_argument("--overlap", help="1", default=1, type=int)
     parser.add_argument("-g", "--gpuid", help="0 1", nargs="*", default=0, type=int)
 
     args = parser.parse_args()

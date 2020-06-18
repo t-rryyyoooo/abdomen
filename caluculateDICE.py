@@ -40,8 +40,8 @@ def main(args):
     total = len(args.patientID_list) * args.classes
     with tqdm(desc="Caluculating DICE...", ncols=60, total=total) as pbar:
         for x in args.patientID_list:
-            true_directory = Path(args.true_directory) / ("case_00" + x) / args.true_name
-            predict_directory = Path(args.predict_directory) / ("case_00" + x) / args.predict_name
+            true_directory = Path(args.true_directory) / ("case_" + x) / args.true_name
+            predict_directory = Path(args.predict_directory) / ("case_" + x) / args.predict_name
 
             true = sitk.ReadImage(str(true_directory))
             predict = sitk.ReadImage(str(predict_directory))
