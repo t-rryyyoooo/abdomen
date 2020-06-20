@@ -1,6 +1,5 @@
 from torch import nn
 import torch
-from torch.autograd import Variable
 
 class WeightedCategoricalCrossEntropy(nn.Module):
     def __init__(self, *function, device):

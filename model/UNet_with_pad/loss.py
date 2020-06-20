@@ -1,6 +1,5 @@
 from torch import nn
 import torch
-from torch.autograd import Variable
 
 class WeightedCategoricalCrossEntropy(nn.Module):
     def __init__(self, device):
@@ -10,6 +9,7 @@ class WeightedCategoricalCrossEntropy(nn.Module):
     def forward(self, pred, true):
         """ 
         onehot
+        pred, true shape : B * C * D * H * W
         """
         
         eps = 10**(-9)
@@ -18,8 +18,10 @@ class WeightedCategoricalCrossEntropy(nn.Module):
         
         weight = result_f / torch.sum(result_f)
         
-        output = ((-1) * torch.sum(1 / (weight + eps) * true * torch.log(pred + eps), axis=-1))
+        output = ((-1) * torch.sum(1 / (weight + eps) * true * torch.log(pred + eps), axis=1))
 
         output = output.mean()
 
         return output
+
+

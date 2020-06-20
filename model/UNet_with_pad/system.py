@@ -34,19 +34,17 @@ class UNetSystem(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         image, label = batch
         image = image.to(self.device, dtype=torch.float)
-        label = label.to(self.device, dtype=torch.float)
+        label = label.to(self.device, dtype=torch.long)
 
         pred = self.forward(image).to(self.device)
 
-        """ Channel last for loss and onehot for DICE. """
-        pred_channel_last = pred.permute(0, 2, 3, 4, 1).to(self.device)
+        """ Onehot for loss. """
+        pred_argmax = pred.argmax(dim=1)
+        pred_onehot = torch.eye(self.num_class)[pred_argmax].to(self.device)
+        label_onehot = torch.eye(self.num_class)[label].to(self.device).permute((0, 4, 1, 2, 3))
 
-        pred_onehot = torch.eye(self.num_class)[pred.argmax(dim=1)].to(self.device)
-
-        
-        dice = self.DICE.compute(label, pred_onehot)
-
-        loss = self.loss(pred_channel_last, label)
+        dice = self.DICE.compute(label, pred_argmax)
+        loss = self.loss(pred, label_onehot)
 
 
         tensorboard_logs = {
@@ -59,16 +57,17 @@ class UNetSystem(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         image, label = batch
         image = image.to(self.device, dtype=torch.float)
-        label = label.to(self.device, dtype=torch.float)
+        label = label.to(self.device, dtype=torch.long)
 
-        pred = self.forward(image)
-        pred_channel_last = pred.permute(0, 2, 3, 4, 1).to(self.device)
+        pred = self.forward(image).to(self.device)
 
-        pred_onehot = torch.eye(self.num_class)[pred.argmax(dim=1)].to(self.device)
-        
-        dice = self.DICE.compute(label, pred_onehot)
+        """ Onehot for loss. """
+        pred_argmax = pred.argmax(dim=1)
+        pred_onehot = torch.eye(self.num_class)[pred_argmax].to(self.device)
+        label_onehot = torch.eye(self.num_class)[label].to(self.device).permute((0, 4, 1, 2, 3))
 
-        loss = self.loss(pred_channel_last, label)
+        dice = self.DICE.compute(label, pred_argmax)
+        loss = self.loss(pred, label_onehot)
 
         tensorboard_logs = {
                 "val_loss" : loss, 

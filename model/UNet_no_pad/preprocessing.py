@@ -59,10 +59,8 @@ class GetArrayFromImage(object):
         if image.GetDimension() != 4:
             image_array = image_array[..., np.newaxis]
 
-        label_array = np.identity(self.classes)[label_array]
-
         image_array = image_array.transpose((3, 2, 0, 1))
-        label_array = label_array.transpose((2, 0, 1, 3))
+        label_array = label_array.transpose((2, 0, 1))
 
         return image_array, label_array
 
