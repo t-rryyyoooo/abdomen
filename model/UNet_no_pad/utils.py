@@ -81,7 +81,8 @@ class DICE():
         self.num_class = num_class
         self.device = device
         """
-        Required : onehot
+        Required : not onehot (after argmax)
+        ex : [[0,1], [2,5],[10,11]]
         """
 
     def compute(self, true, pred):
@@ -106,12 +107,12 @@ class DICE():
     def computePerClass(self, true, pred):
         DICE = []
         for x in range(self.num_class):
-            """
             true_part = (true == x).int()
             pred_part = (pred == x).int()
             """
             true_part = true[..., x]
             pred_part = pred[..., x]
+            """
             dice = self.compute(true_part, pred_part)
             DICE.append(dice)
 
