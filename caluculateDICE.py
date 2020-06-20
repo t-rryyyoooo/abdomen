@@ -78,7 +78,7 @@ def main(args):
     df = pd.concat([df, df_means], sort=False)
 
     createParentPath(args.save_path)
-    df.to_csv(args.save_path)
+    df.to_csv(args.save_path, index=False)
 
 if __name__ == '__main__':
     args = parseArgs()
