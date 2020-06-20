@@ -18,9 +18,9 @@ class WeightedCategoricalCrossEntropy(nn.Module):
         
         weight = result_f / torch.sum(result_f)
         
-        output = ((-1) * torch.sum(1 / (weight + eps) * true * torch.log(pred + eps), axis=1))
+        output = ((-1) * torch.sum(1 / (weight + eps) * true * torch.log(pred + eps), axis=1)).to(self.device)
 
-        output = output.mean()
+        output = output.mean().to(self.device)
 
         return output
 

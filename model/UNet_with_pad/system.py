@@ -40,7 +40,6 @@ class UNetSystem(pl.LightningModule):
 
         """ Onehot for loss. """
         pred_argmax = pred.argmax(dim=1)
-        pred_onehot = torch.eye(self.num_class)[pred_argmax].to(self.device)
         label_onehot = torch.eye(self.num_class)[label].to(self.device).permute((0, 4, 1, 2, 3))
 
         dice = self.DICE.compute(label, pred_argmax)
@@ -51,8 +50,11 @@ class UNetSystem(pl.LightningModule):
                 "train_loss" : loss, 
                 "dice" : dice
                 }
+        progress_bar = {
+                "dice" : dice
+                }
         
-        return {"loss" : loss, "log" : tensorboard_logs}#, "progress_bar" : progress_bar}
+        return {"loss" : loss, "log" : tensorboard_logs, "progress_bar" : progress_bar}
 
     def validation_step(self, batch, batch_idx):
         image, label = batch
@@ -63,7 +65,6 @@ class UNetSystem(pl.LightningModule):
 
         """ Onehot for loss. """
         pred_argmax = pred.argmax(dim=1)
-        pred_onehot = torch.eye(self.num_class)[pred_argmax].to(self.device)
         label_onehot = torch.eye(self.num_class)[label].to(self.device).permute((0, 4, 1, 2, 3))
 
         dice = self.DICE.compute(label, pred_argmax)
@@ -91,7 +92,6 @@ class UNetSystem(pl.LightningModule):
                 "val_dice" : avg_dice, 
                 }
         progress_bar = {
-                "val_loss" : avg_loss,
                 "val_dice" : avg_dice
                 }
 
@@ -106,9 +106,9 @@ class UNetSystem(pl.LightningModule):
     @pl.data_loader
     def train_dataloader(self):
         translate = 0.0
-        rotate = 180
+        rotate = 0
         shear = 0.0
-        scale = 0.05
+        scale = 0.0
         batch_size = self.batch_size
 
         train_dataset = UNetDataset(
