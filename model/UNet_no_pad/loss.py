@@ -2,7 +2,7 @@ from torch import nn
 import torch
 
 class WeightedCategoricalCrossEntropy(nn.Module):
-    def __init__(self, *function, device):
+    def __init__(self, device):
         super(WeightedCategoricalCrossEntropy, self).__init__()
         self.device = device
 

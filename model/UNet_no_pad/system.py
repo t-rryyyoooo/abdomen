@@ -44,7 +44,6 @@ class UNetSystem(pl.LightningModule):
 
         """ Onehot for loss. """
         pred_argmax = pred.argmax(dim=1)
-        pred_onehot = torch.eye(self.num_class)[pred_argmax].to(self.device)
         label_onehot = torch.eye(self.num_class)[label].to(self.device).permute((0, 4, 1, 2, 3))
 
         dice = self.DICE.compute(label, pred_argmax)
@@ -66,15 +65,14 @@ class UNetSystem(pl.LightningModule):
         """
         image, label = batch
         image = image.to(self.device, dtype=torch.float)
-        label = label.to(self.device, dtype=torch.float)
+        label = label.to(self.device, dtype=torch.long)
 
         pred = self.forward(image).to(self.device)
         
 
         """ Onehot for loss. """
         pred_argmax = pred.argmax(dim=1)
-        pred_onehot = torch.eye(self.num_class)[pred_argmax].to(self.device)
-        label_onehot = torch.eye(self.num_class)[label].to(self.device)
+        label_onehot = torch.eye(self.num_class)[label].to(self.device).permute((0, 4, 1, 2, 3))
 
         dice = self.DICE.compute(label, pred_argmax)
         loss = self.loss(pred, label_onehot)
