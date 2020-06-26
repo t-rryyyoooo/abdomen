@@ -1,6 +1,7 @@
 import torch
 from torch import nn
-from .utils import cropping3D
+from utils import cropping3D
+from torchsummary import summary
 
 class DoubleConvolution(nn.Module):
     def __init__(self, in_channel, mid_channel, out_channel, n=2, use_bn=True):
@@ -135,7 +136,7 @@ class UNetModel(nn.Module):
 
 if __name__ == "__main__":
     model=UNetModel(1 ,3)
-    net_shape = [1, 1, 44+ 44*2, 44 + 44*2, 28 + 44*2]
+    net_shape = (1, 1, 44+ 44*2, 44 + 44*2, 28 + 44*2)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     model.to(device)
@@ -144,4 +145,5 @@ if __name__ == "__main__":
     print("input: ", net_shape)
 
     output = model(dummy_img)
+    summary(model, net_shape)
     print('output:', output.size())
