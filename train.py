@@ -1,6 +1,5 @@
 from importlib import import_module
 import pytorch_lightning as pl
-from pytorch_lightning.loggers import CometLogger
 import json
 import argparse
 import torch
@@ -8,66 +7,72 @@ import torch
 def parseArgs():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("input_json", help="json file for input detail.")
+    parser.add_argument("dataset_path", help="/home/vmlab/Desktop/data/patch/Abdomen/28-44-44/image")
+    parser.add_argument("model_savepath", help="/home/vmlab/Desktop/data/modelweight/Abdomen/28-44-44/mask")
+    parser.add_argument("module_name", help="Model directory name under model/.")
+    parser.add_argument("system_name", help="The class name in system.py")
+    parser.add_argument("checkpoint_name", help="Checkpoint class name.")
+    parser.add_argument("--train_list", help="00 01", nargs="*", default= "00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19")
+    parser.add_argument("--val_list", help="20 21", nargs="*", default="20 21 22 23 24 25 26 27 28 29")
+    parser.add_argument("--log", help="/home/vmlab/Desktop/data/log/Abdomen/28-44-44/mask", default="log")
+    parser.add_argument("--in_channel", help="Input channlel", type=int, default=1)
+    parser.add_argument("--num_class", help="The number of classes.", type=int, default=14)
+    parser.add_argument("--lr", help="Default 0.001", type=float, default=0.001)
+    parser.add_argument("--batch_size", help="Default 6", type=int, default=6)
+    parser.add_argument("--num_workers", help="Default 6.", type=int, default=6)
+    parser.add_argument("--epoch", help="Default 50.", type=int, default=50)
+    parser.add_argument("--gpu_ids", help="Default 0.", type=int, default=0, nargs="*")
+
+    parser.add_argument("--api_key", help="Your comet.ml API key.")
+    parser.add_argument("--project_name", help="Project name log is saved.")
+    parser.add_argument("--experiment_name", help="Experiment name.", default="3DU-Net")
 
     args = parser.parse_args()
 
     return args
 
 def main(args):
-    with open(args.input_json, "r") as f:
-        input_json = json.load(f)
-
-    model_module_name = input_json["model_module_name"]
-    system_name = input_json["system_name"]
-    checkpoint_name = input_json["checkpoint_name"]
-    dataset_path = input_json["dataset_path"]
-    criteria = input_json["criteria"]
-    in_channel = input_json["in_channel"]
-    num_class = input_json["num_class"]
-    epoch = input_json["epoch"]
-    batch_size = input_json["batch_size"]
-    num_workers = input_json["num_workers"]
-    model_savepath = input_json["model_savepath"]
-    learning_rate = input_json["learning_rate"]
-    gpu_ids = input_json["gpu_ids"]
-
-    api_key = input_json["api_key"]
-    project_name = input_json["project_name"]
-    experiment_name = input_json["experiment_name"]
-    log = input_json["log"]
-    comet_logger = CometLogger(
-            api_key = api_key,
-            project_name = project_name,  
-            experiment_name = experiment_name,
-            save_dir = log
-    )
- 
     torch.manual_seed(0)
 
-    system_path = "." + model_module_name + ".system"
-    checkpoint_path = "." + model_module_name + ".modelCheckpoint"
+    if args.api_key != "No": 
+        from pytorch_lightning.loggers import CometLogger
+        comet_logger = CometLogger(
+                api_key = args.api_key,
+                project_name =args. project_name,  
+                experiment_name = args.experiment_name,
+                save_dir = args.log
+        )
+    else:
+        comet_logger = None
+
+    criteria = {
+            "train" : args.train_list, 
+            "val" : args.val_list
+            }
+
+    system_path = "." + args.module_name + ".system"
+    checkpoint_path = "." + args.module_name + ".modelCheckpoint"
     system_module = import_module(system_path, "model")
     checkpoint_module = import_module(checkpoint_path, "model")
-    UNetSystem = getattr(system_module, system_name)
-    checkpoint = getattr(checkpoint_module, checkpoint_name)
+    UNetSystem = getattr(system_module, args.system_name)
+    checkpoint = getattr(checkpoint_module, args.checkpoint_name)
     system = UNetSystem(
-            dataset_path = dataset_path,
-            criteria = criteria,
-            in_channel = in_channel,
-            num_class = num_class,
-            learning_rate = learning_rate,
-            batch_size = batch_size,
-            num_workers = num_workers, 
-            checkpoint = checkpoint(model_savepath), 
+            dataset_path = args.dataset_path,
+            criteria = riteria,
+            in_channel = args.in_channel,
+            num_class = args.num_class,
+            learning_rate = args.learning_rate,
+            batch_size = args.batch_size,
+            num_workers = args.num_workers, 
+            checkpoint = checkpoint(args.model_savepath)
             )
 
     trainer = pl.Trainer(
             num_sanity_val_steps = 0, 
-            max_epochs = epoch,
+            max_epochs = args.epoch,
             checkpoint_callback = None, 
             logger = comet_logger,
-            gpus = gpu_ids
+            gpus = args.gpu_ids
         )
     trainer.fit(system)
 
