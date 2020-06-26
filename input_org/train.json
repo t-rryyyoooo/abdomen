@@ -14,7 +14,7 @@
 	"num_workers" : 6,
 	"epoch" : 50,
 	"gpu_ids" : "0 1", 
-	"api_key" : "No",
+	"api_key" : "Your comet.ml API KEY. If you don' use it, then, feed No",
 	"project_name" : "abdomen",
 	"experiment_name" : "with_pad"
 }
