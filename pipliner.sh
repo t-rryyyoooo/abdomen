@@ -26,7 +26,6 @@ dataset_path="${DATASET_PATH}/image"
 save_directory="${DATASET_PATH}/segmentation"
 
 readonly MODEL_SAVEPATH=$(eval echo $(cat ${JSON_FILE} | jq -r ".model_savepath"))
-model="${MODEL_SAVEPATH}/${model_name}"
 
 readonly TRAIN_LIST=$(cat ${JSON_FILE} | jq -r ".train_list")
 readonly VAL_LIST=$(cat ${JSON_FILE} | jq -r ".val_list")
@@ -51,6 +50,8 @@ readonly EXPERIMENT_NAME=$(cat ${JSON_FILE} | jq -r ".experiment_name")
 # Segmentation input
 readonly DATA_DIRECTORY=$(eval echo $(cat ${JSON_FILE} | jq -r ".data_directory"))
 readonly MODEL_NAME=$(eval echo $(cat ${JSON_FILE} | jq -r ".model_name"))
+model="${MODEL_SAVEPATH}/${MODEL_NAME}"
+
 readonly IMAGE_PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".image_patch_size")
 readonly LABEL_PATCH_SIZE=$(cat ${JSON_FILE} | jq -r ".label_patch_size")
 readonly OVERLAP=$(cat ${JSON_FILE} | jq -r ".overlap")
@@ -87,7 +88,7 @@ echo "API_KEY:${API_KEY}"
 echo "PROJECT_NAME:${PROJECT_NAME}"
 echo "EXPERIMENT_NAME:${EXPERIMENT_NAME}"
 
-#python3 train.py ${dataset_path} ${MODEL_SAVEPATH} ${MODULE_NAME} ${SYSTEM_NAME} ${CHECKPOINT_NAME} --train_list ${TRAIN_LIST} --val_list ${VAL_LIST} --log ${LOG} --in_channel ${IN_CHANNEL} --num_class ${NUM_CLASS} --lr ${LEARNING_RATE} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --epoch ${EPOCH} --gpu_ids ${GPU_IDS} --api_key ${API_KEY} --project_name ${PROJECT_NAME} --experiment_name ${EXPERIMENT_NAME} 
+python3 train.py ${dataset_path} ${MODEL_SAVEPATH} ${MODULE_NAME} ${SYSTEM_NAME} ${CHECKPOINT_NAME} --train_list ${TRAIN_LIST} --val_list ${VAL_LIST} --log ${LOG} --in_channel ${IN_CHANNEL} --num_class ${NUM_CLASS} --lr ${LEARNING_RATE} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --epoch ${EPOCH} --gpu_ids ${GPU_IDS} --api_key ${API_KEY} --project_name ${PROJECT_NAME} --experiment_name ${EXPERIMENT_NAME} 
 
 echo "---------- Segmentation ----------"
 echo ${test_list[@]}
@@ -104,15 +105,16 @@ do
  echo "OVERLAP:${OVERLAP}"
  echo "GPU_IDS:${GPU_IDS}"
 
+
  if [ $MASK_NAME = "No" ];then
   echo "Mask:${MASK_NAME}"
-  #python3 segmentation.py $image $model $save --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_ID}
+python3 segmentation.py $image $model $save --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_IDS}
 
  else
   mask="${DATA_DIRECTORY}/case_${number}/${MASK_NAME}"
   echo "Mask:${mask}"
 
-  #python3 segmentation.py $image $model $save --mask_path $mask --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_ID}
+python3 segmentation.py $image $model $save --mask_path $mask --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_IDS}
  fi
 
 done
@@ -128,6 +130,6 @@ echo "TRUE_NAME:${TRUE_NAME}"
 echo "PREDICT_NAME:${PREDICT_NAME}"
 
 
-#python3 caluculateDICE.py ${DATA_DIRECTORY} ${save_directory} ${SAVE_PATH} ${test_list} --classes ${NUM_CLASS} --class_label ${CLASS_LABEL} --true_name ${TRUE_NAME} --predict_name ${PREDICT_NAME} 
+python3 caluculateDICE.py ${DATA_DIRECTORY} ${save_directory} ${CSV_SAVEPATH} ${TEST_LIST} --classes ${NUM_CLASS} --class_label ${CLASS_LABEL} --true_name ${TRUE_NAME} --predict_name ${PREDICT_NAME} 
 
 

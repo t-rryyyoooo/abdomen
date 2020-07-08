@@ -2,7 +2,6 @@ from importlib import import_module
 import pytorch_lightning as pl
 import json
 import argparse
-import torch
 
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -32,7 +31,6 @@ def parseArgs():
     return args
 
 def main(args):
-    torch.manual_seed(0)
     criteria = {
             "train" : args.train_list, 
             "val" : args.val_list
