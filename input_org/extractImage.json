@@ -1,6 +1,6 @@
 {
     "data_directory" : "$HOME/Desktop/data/kits19",
-    "save_directory" : "$HOME/Desktop/data/patch/16-48-48/cancer", 
+    "save_directory" : "$HOME/Desktop/data/patch/16-48-48/cancer/image", 
     "image_patch_size" : "16-48-48",
     "label_patch_size" : "16-48-48",
     "slide" : "16-48-48",
