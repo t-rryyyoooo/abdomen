@@ -90,6 +90,10 @@ echo "EXPERIMENT_NAME:${EXPERIMENT_NAME}"
 
 python3 train.py ${dataset_path} ${MODEL_SAVEPATH} ${MODULE_NAME} ${SYSTEM_NAME} ${CHECKPOINT_NAME} --train_list ${TRAIN_LIST} --val_list ${VAL_LIST} --log ${LOG} --in_channel ${IN_CHANNEL} --num_class ${NUM_CLASS} --lr ${LEARNING_RATE} --batch_size ${BATCH_SIZE} --num_workers ${NUM_WORKERS} --epoch ${EPOCH} --gpu_ids ${GPU_IDS} --api_key ${API_KEY} --project_name ${PROJECT_NAME} --experiment_name ${EXPERIMENT_NAME} 
 
+if [ $? -ne 0 ];then
+ exit 1
+fi
+
 echo "---------- Segmentation ----------"
 echo ${test_list[@]}
 for number in ${test_list[@]}
@@ -108,13 +112,18 @@ do
 
  if [ $MASK_NAME = "No" ];then
   echo "Mask:${MASK_NAME}"
-python3 segmentation.py $image $model $save --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_IDS}
+  python3 segmentation.py $image $model $save --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_IDS}
 
  else
   mask="${DATA_DIRECTORY}/case_${number}/${MASK_NAME}"
   echo "Mask:${mask}"
 
-python3 segmentation.py $image $model $save --mask_path $mask --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_IDS}
+  python3 segmentation.py $image $model $save --mask_path $mask --image_patch_size ${IMAGE_PATCH_SIZE} --label_patch_size ${LABEL_PATCH_SIZE} --overlap $OVERLAP -g ${GPU_IDS}
+
+ fi
+
+ if [ $? -ne 0 ];then
+  exit 1
  fi
 
 done

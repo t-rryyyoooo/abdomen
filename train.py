@@ -1,7 +1,9 @@
 from importlib import import_module
+import os
 import pytorch_lightning as pl
 import json
 import argparse
+from pathlib import Path
 
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -25,6 +27,8 @@ def parseArgs():
     parser.add_argument("--api_key", help="Your comet.ml API key.")
     parser.add_argument("--project_name", help="Project name log is saved.")
     parser.add_argument("--experiment_name", help="Experiment name.", default="3DU-Net")
+
+    parser.add_argument("--overwrite", action="store_true")
 
     args = parser.parse_args()
 
@@ -79,6 +83,13 @@ def main(args):
             )
  
     trainer.fit(system)
+
+    # Make modeleweight read-only
+    if not args.overwrite:
+        for f in Path(args.model_savepath).glob("*.pkl"):
+            print(f)
+            os.chmod(f, 0o444)
+
 
 if __name__ == "__main__":
     args = parseArgs()
