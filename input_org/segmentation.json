@@ -1,8 +1,8 @@
 {
-    "data_directory" : "$HOME/Desktop/data/Abdomen",
-    "weight" : "$HOME/Desktop/data/modelweight/Abdomen/with_pad/28-44-44/mask/latest.pkl",
-    "save_directory" : "$HOME/Desktop/data/patch/Abdomen/28-44-44/mask", 
-    "image_patch_size" : "28-44-44",
+    "data_directory" : "Raw data is under this directory, data_directory/case_00/ [ex] $HOME/Desktop/data/Abdomen",
+    "weight" : "The modelweight path. [ex] $HOME/Desktop/data/modelweight/Abdomen/no_pad/116-132-132/mask/latest.pkl",
+    "save_directory" : "You save predicted label to this directory, save_directory/case_00/ . [ex] $HOME/Desktop/data/patch/Abdomen/no_pad/116-132-132/mask/segmentation", 
+    "image_patch_size" : "116-132-132",
     "label_patch_size" : "28-44-44",
     "overlap" : 1,
     "image_name" : "imaging.nii.gz",
