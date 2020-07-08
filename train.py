@@ -33,18 +33,6 @@ def parseArgs():
 
 def main(args):
     torch.manual_seed(0)
-
-    if args.api_key != "No": 
-        from pytorch_lightning.loggers import CometLogger
-        comet_logger = CometLogger(
-                api_key = args.api_key,
-                project_name =args. project_name,  
-                experiment_name = args.experiment_name,
-                save_dir = args.log
-        )
-    else:
-        comet_logger = None
-
     criteria = {
             "train" : args.train_list, 
             "val" : args.val_list
@@ -58,22 +46,40 @@ def main(args):
     checkpoint = getattr(checkpoint_module, args.checkpoint_name)
     system = UNetSystem(
             dataset_path = args.dataset_path,
-            criteria = riteria,
+            criteria = criteria,
             in_channel = args.in_channel,
             num_class = args.num_class,
-            learning_rate = args.learning_rate,
+            learning_rate = args.lr,
             batch_size = args.batch_size,
             num_workers = args.num_workers, 
             checkpoint = checkpoint(args.model_savepath)
             )
 
-    trainer = pl.Trainer(
-            num_sanity_val_steps = 0, 
-            max_epochs = args.epoch,
-            checkpoint_callback = None, 
-            logger = comet_logger,
-            gpus = args.gpu_ids
+    if args.api_key != "No": 
+        from pytorch_lightning.loggers import CometLogger
+        comet_logger = CometLogger(
+                api_key = args.api_key,
+                project_name =args. project_name,  
+                experiment_name = args.experiment_name,
+                save_dir = args.log
         )
+
+        trainer = pl.Trainer(
+                num_sanity_val_steps = 0, 
+                max_epochs = args.epoch,
+                checkpoint_callback = None, 
+                logger = comet_logger,
+                gpus = args.gpu_ids
+            )
+ 
+    else:
+        trainer = pl.Trainer(
+                num_sanity_val_steps = 0, 
+                max_epochs = args.epoch,
+                checkpoint_callback = None, 
+                gpus = args.gpu_ids
+            )
+ 
     trainer.fit(system)
 
 if __name__ == "__main__":
