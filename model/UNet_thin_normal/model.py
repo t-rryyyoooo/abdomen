@@ -21,7 +21,7 @@ class CombNet(nn.Module):
     def forward(self, input_1, input_2, thin_input):
         x = self.thin_UNet(thin_input)
         x = self.expand_2(x, input_2)
-        x = self.expand_2(x, input_1)
+        x = self.expand_1(x, input_1)
         x = self.segmentation(x)
         x = self.softmax(x)
 
@@ -33,21 +33,25 @@ if __name__ == "__main__":
             in_channel_1=64, 
             in_channel_2=128,
             thin_in_channel=1, 
-            thin_out_channel=128,
+            thin_out_channel=64,
             num_class=14
             )
-    input_1_shape = [1, 64, 600, 600, 8*4]
-    input_2_shape = [1, 128, 300, 300, 8*2]
-    input_thin_shape = [1, 1, 150, 150, 8]
+    input_1_shape = [1, 64, 120, 120, 8*4]
+    input_2_shape = [1, 128, 60, 60, 8*2]
+    input_thin_shape = [1, 1, 30, 30, 8]
 
+    torch.backends.cudnn.enabled = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     model.to(device)
 
-    input_1_dummy = torch.rand(input_1_shape)
-    input_2_dummy = torch.rand(input_2_shape)
-    input_thin_dummy = torch.rand(input_thin_shape)
+    input_1_dummy = torch.rand(input_1_shape).to(device)
+    input_2_dummy = torch.rand(input_2_shape).to(device)
+    input_thin_dummy = torch.rand(input_thin_shape).to(device)
 
+    print("Device:", device)
     print("Input:", input_1_dummy.shape, input_2_dummy.shape, input_thin_dummy.shape)
     output = model(input_1_dummy, input_2_dummy, input_thin_dummy)
-    print("output :", output.size())
+
+    print("Output :", output.size())
 
