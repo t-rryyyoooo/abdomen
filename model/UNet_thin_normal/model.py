@@ -36,12 +36,13 @@ if __name__ == "__main__":
             thin_out_channel=64,
             num_class=14
             )
-    input_1_shape = [1, 64, 120, 120, 8*4]
-    input_2_shape = [1, 128, 60, 60, 8*2]
-    input_thin_shape = [1, 1, 30, 30, 8]
+    input_1_shape = [1, 64, 200, 200, 8*4]
+    input_2_shape = [1, 128, 100, 100, 8*2]
+    input_thin_shape = [1, 1, 50, 50, 8]
 
     torch.backends.cudnn.enabled = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = "cpu"
     
     model.to(device)
 
