@@ -1,22 +1,6 @@
 import torch
 from torch import nn
-from model_part import CreateUpConvBlock, DoubleConvolution
-
-class CreateUpConvBlockWithoutZ(nn.Module):
-    def __init__(self, in_channel, concat_channel, mid_channel, out_channel, n=2, use_bn=True):
-        super(CreateUpConvBlockWithoutZ, self).__init__()
-        self.convTranspose = nn.ConvTranspose3d(in_channel, in_channel, (2, 2, 1), stride=(2, 2, 1), padding=(0, 0, 0), dilation=1)
-
-        self.DoubleConvolution = DoubleConvolution(in_channel + concat_channel, mid_channel, out_channel, n=2, use_bn=True)
-
-    def forward(self, x1, x2):
-        x1 = self.convTranspose(x1)
-        c = [(i - j) for (i, j) in zip(x2.size()[2:], x1.size()[2:])]
-        x1 = nn.functional.pad(x1, (c[2] // 2, (c[2] * 2 + 1) // 2, c[1] // 2, (c[1] * 2 + 1) // 2, c[0] // 2, (c[0] * 2 + 1) // 2))
-
-        x = torch.cat([x2, x1], dim=1)
-        x = self.DoubleConvolution(x)
-        return x
+from model_part import CreateUpConvBlock
 
 class PartOfUNet(nn.Module):
     def __init__(self, in_channel_up=128, in_channel_org=64, in_channel_half=128, num_class=14):
