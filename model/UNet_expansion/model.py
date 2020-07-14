@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from model_part import CreateUpConvBlock, DoubleConvolution
-
+from pytorch_memlab import profile, MemReporter
 
 class CreateUpConvBlockWithoutZ(nn.Module):
     def __init__(self, in_channel, concat_channel, mid_channel, out_channel, n=2, use_bn=True):
@@ -30,6 +30,7 @@ class PartOfUNet(nn.Module):
 
         self.softmax = nn.Softmax(dim=1)
 
+    @profile
     def forward(self, input_up, input_org, input_half):
         x = self.expand_2(input_up, input_half)
         x = self.expand_1(x, input_org)
@@ -41,21 +42,22 @@ class PartOfUNet(nn.Module):
 
 if __name__ == "__main__":
     in_channel_up = 64
-    in_channel_org = 64 
-    in_channel_half =128 
+    in_channel_org = 32
+    in_channel_half = 64
     model = PartOfUNet(
             in_channel_up=in_channel_up,
             in_channel_org=in_channel_org,
             in_channel_half=in_channel_half,
             num_class=14
             )
-    input_org_shape = [ in_channel_org, 500, 500, 8]
-    input_half_shape = [ in_channel_half, 250, 250, 8]
-    input_up_shape = [ in_channel_up, 125, 125, 8]
+    input_org_shape = [1, in_channel_org, 500, 500, 8]
+    input_half_shape = [1, in_channel_half, 250, 250, 8]
+    input_up_shape = [1, in_channel_up, 125, 125, 8]
 
     torch.backends.cudnn.enabled = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+    reporter = MemReporter(model)
+    reporter.report()    
     model.to(device)
 
     input_org_dummy = torch.rand(input_org_shape).to(device)
@@ -65,6 +67,7 @@ if __name__ == "__main__":
     print("Device:", device)
     print("Input:", input_org_dummy.shape, input_half_dummy.shape, input_up_dummy.shape)
     output = model(input_up_dummy, input_org_dummy, input_half_dummy)
+    reporter.report()
 
     print("Output :", output.size())
 
