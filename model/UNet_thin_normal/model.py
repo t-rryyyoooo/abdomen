@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from model_part import *
+from model_part import CreateUpConvBlock
 from model_thin_UNet import BuildThinUNet
 
 class CombNet(nn.Module):
@@ -33,17 +33,15 @@ if __name__ == "__main__":
             in_channel_1=64, 
             in_channel_2=128,
             thin_in_channel=1, 
-            thin_out_channel=64,
+            thin_out_channel=128,
             num_class=14
             )
-    input_1_shape = [1, 64, 200, 200, 8*4]
-    input_2_shape = [1, 128, 100, 100, 8*2]
-    input_thin_shape = [1, 1, 50, 50, 8]
+    input_1_shape = [1, 64, 500, 500, 8*4]
+    input_2_shape = [1, 128, 250, 250, 8*2]
+    input_thin_shape = [1, 1, 125, 125, 8]
 
-    torch.backends.cudnn.enabled = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = "cpu"
-    
+
     model.to(device)
 
     input_1_dummy = torch.rand(input_1_shape).to(device)
