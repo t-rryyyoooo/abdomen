@@ -49,9 +49,9 @@ if __name__ == "__main__":
             in_channel_half=in_channel_half,
             num_class=14
             )
-    input_org_shape = [ in_channel_org, 500, 500, 8]
-    input_half_shape = [ in_channel_half, 250, 250, 8]
-    input_up_shape = [ in_channel_up, 125, 125, 8]
+    input_org_shape = [1, in_channel_org, 500, 500, 8]
+    input_half_shape = [1, in_channel_half, 250, 250, 8]
+    input_up_shape = [1, in_channel_up, 125, 125, 8]
 
     torch.backends.cudnn.enabled = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
